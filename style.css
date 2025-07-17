@@ -1,0 +1,100 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  color: #222;
+  background: #fff;
+}
+
+header {
+  background-color: #e60026;
+  padding: 20px;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.top-bar {
+  max-width: 1100px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 100px;
+}
+
+main {
+  padding: 40px 20px;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.section {
+  margin-bottom: 60px;
+  text-align: center;
+}
+
+.section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.section p {
+  font-size: 1.1rem;
+  margin: 8px 0;
+}
+
+.highlight {
+  font-weight: bold;
+  color: #e60026;
+  margin: 16px 0;
+}
+
+.image-grid {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.image-grid img {
+  width: 250px;
+  height: auto;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.gift {
+  background-color: #f8f8f8;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.gift-image {
+  margin-top: 20px;
+}
+
+.gift-image img {
+  width: 200px;
+  border-radius: 10px;
+}
+
+footer {
+  background: #e60026;
+  color: white;
+  text-align: center;
+  padding: 15px;
+  font-size: 0.95rem;
+}
+
+footer a {
+  color: white;
+  text-decoration: underline;
+}
