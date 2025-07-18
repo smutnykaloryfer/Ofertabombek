@@ -1,116 +1,94 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const lightboxOverlay = document.createElement('div');
-  lightboxOverlay.classList.add('lightbox-overlay');
+  const overlay = document.createElement('div');
+  overlay.className = 'lightbox-overlay';
 
-  const lightboxContent = document.createElement('div');
-  lightboxContent.classList.add('lightbox-content');
+  const content = document.createElement('div');
+  content.className = 'lightbox-content';
 
-  const lightboxImage = document.createElement('img');
-  lightboxContent.appendChild(lightboxImage);
+  const img = document.createElement('img');
+  content.appendChild(img);
 
   const closeBtn = document.createElement('button');
-  closeBtn.classList.add('lightbox-close');
+  closeBtn.className = 'lightbox-close';
   closeBtn.textContent = '×';
-  lightboxContent.appendChild(closeBtn);
+  content.appendChild(closeBtn);
 
-  lightboxOverlay.appendChild(lightboxContent);
-  document.body.appendChild(lightboxOverlay);
+  overlay.appendChild(content);
+  document.body.appendChild(overlay);
 
-  function closeLightbox() {
-    lightboxOverlay.classList.remove('active');
-    lightboxImage.src = '';
-    currentScale = 1;
-    resetPosition();
-    updateTransform();
-  }
-
-  closeBtn.addEventListener('click', closeLightbox);
-
-  lightboxOverlay.addEventListener('click', (e) => {
-    if (e.target === lightboxOverlay) {
-      closeLightbox();
-    }
-  });
-
-  const links = document.querySelectorAll('a.lightbox');
-  links.forEach(link => {
-    link.addEventListener('click', (e) => {
+  // Otwarcie lightbox
+  document.querySelectorAll('a.lightbox').forEach(link => {
+    link.addEventListener('click', e => {
       e.preventDefault();
-      const imgSrc = link.getAttribute('href');
-      lightboxImage.src = imgSrc;
-      lightboxOverlay.classList.add('active');
-      currentScale = 1;
-      resetPosition();
-      updateTransform();
+      img.src = ''; // Resetuj src najpierw
+      overlay.classList.add('active');
+
+      // Opóźnij ładowanie dużego obrazka
+      setTimeout(() => {
+        img.src = link.getAttribute('href');
+        resetZoom();
+      }, 50);
     });
   });
 
-  // Skalowanie
-  let currentScale = 1;
-  const scaleStep = 0.1;
-  const minScale = 1;
-  const maxScale = 5;
-
-  // Pozycja przesunięcia (drag)
-  let currentX = 0;
-  let currentY = 0;
-
-  // Dragging variables
-  let isDragging = false;
-  let startX = 0;
-  let startY = 0;
-
-  // Obsługa zoomu na scroll
-  lightboxImage.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    // Zmiana skali
-    if (e.deltaY < 0) {
-      currentScale = Math.min(currentScale + scaleStep, maxScale);
-    } else {
-      currentScale = Math.max(currentScale - scaleStep, minScale);
-      // Jeśli pomniejszamy do 1, resetuj przesunięcie
-      if (currentScale === 1) {
-        resetPosition();
-      }
-    }
-    updateTransform();
+  // Zamknięcie
+  closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) close();
   });
 
-  // Obsługa drag
-  lightboxImage.style.cursor = 'grab';
+  function close() {
+    overlay.classList.remove('active');
+    img.src = '';
+    resetZoom();
+  }
 
-  lightboxImage.addEventListener('mousedown', (e) => {
-    if (currentScale <= 1) return; // drag tylko przy zoom > 1
-    isDragging = true;
-    startX = e.clientX - currentX;
-    startY = e.clientY - currentY;
-    lightboxImage.style.cursor = 'grabbing';
+  // Zoom & Pan
+  let scale = 1;
+  let posX = 0, posY = 0;
+  let isDragging = false, startX = 0, startY = 0;
+
+  img.addEventListener('wheel', e => {
     e.preventDefault();
+    scale += e.deltaY < 0 ? 0.2 : -0.2;
+    scale = Math.max(1, Math.min(3, scale));
+    if (scale === 1) resetPosition();
+    applyTransform();
+  });
+
+  img.addEventListener('mousedown', e => {
+    if (scale === 1) return;
+    isDragging = true;
+    startX = e.clientX - posX;
+    startY = e.clientY - posY;
+    img.style.cursor = 'grabbing';
   });
 
   window.addEventListener('mouseup', () => {
     isDragging = false;
-    if (currentScale > 1) {
-      lightboxImage.style.cursor = 'grab';
-    } else {
-      lightboxImage.style.cursor = 'default';
-    }
+    img.style.cursor = scale > 1 ? 'grab' : 'default';
   });
 
-  window.addEventListener('mousemove', (e) => {
+  window.addEventListener('mousemove', e => {
     if (!isDragging) return;
-    currentX = e.clientX - startX;
-    currentY = e.clientY - startY;
-    updateTransform();
+    posX = e.clientX - startX;
+    posY = e.clientY - startY;
+    applyTransform();
   });
 
-  // Funkcje do transformacji i resetów
-  function updateTransform() {
-    lightboxImage.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
+  function applyTransform() {
+    img.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
   }
 
   function resetPosition() {
-    currentX = 0;
-    currentY = 0;
+    posX = 0;
+    posY = 0;
+  }
+
+  function resetZoom() {
+    scale = 1;
+    resetPosition();
+    applyTransform();
+    img.style.cursor = 'default';
   }
 });
